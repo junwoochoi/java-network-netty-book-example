@@ -17,6 +17,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        super.channelReadComplete(ctx);
         ctx.flush(); // channelRead 이벤트의 처리가 완료된 후 자동으로 수행되는 이벤트 메서드, 채널 파이프라인에 저장된 버퍼를 전송하는 flush 메소드를 호출.
     }
 }
