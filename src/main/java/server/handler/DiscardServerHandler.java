@@ -5,7 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 public class DiscardServerHandler extends SimpleChannelInboundHandler<Object> {
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception { // 지정한 포트로 접속한 클라이언트가 데이터 전송시 해당 메서드 실행
         //Do nothing
     }
 
