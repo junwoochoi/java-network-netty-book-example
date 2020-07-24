@@ -1,4 +1,4 @@
-package client.handler;
+package ch1.client.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

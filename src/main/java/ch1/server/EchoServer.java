@@ -1,4 +1,4 @@
-package server;
+package ch1.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -8,8 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import server.handler.DiscardServerHandler;
-import server.handler.EchoServerHandler;
+import ch1.server.handler.EchoServerHandler;
 
 public class EchoServer {
     public static void main(String[] args) throws Exception{
