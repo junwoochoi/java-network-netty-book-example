@@ -6,3 +6,4 @@
 ### [Chapter 1 네티 맛보기](https://github.com/junwoochoi/java-network-netty-book-example/tree/master/src/main/java/ch1)
 ### [Chapter 2 네티의 주요 특징](https://github.com/junwoochoi/java-network-netty-book-example/tree/master/src/main/java/ch2)
 ### [Chapter 3 부트스트랩](https://github.com/junwoochoi/java-network-netty-book-example/tree/master/src/main/java/ch3)
+### [Chapter 4 이벤트 핸들러](https://github.com/junwoochoi/java-network-netty-book-example/tree/master/src/main/java/ch4)
