@@ -100,3 +100,99 @@ public class EchoServer {
 
 실제 이벤트의 발생 순서는 위에서 나열한 순서와 동일하다.
 
+### 아웃바운드 이벤트
+아웃바운드 이벤트는 네티 사용자(프로그래머)가 요청한 동작에 해당하는 이벤트를 말한다. 연결 요청, 데이터 전송, 소켓 닫기 등이 이에 해당한다.
+네티에서는 `ChannelOutboundHandler`인터페이스로 아웃바운드 이벤트를 제공한다.
+
+- `bind`
+    - 서버 소켓 채널이 클라이언트의 연결을 대기하는 ip와 포트가 설정되었을 때 발생
+- `connect`
+    - 클라이언트 소켓 채널이 서버에 연결되었을 때 발생
+- `disconnect`
+    - 클라이언트 소켓 채널의 연결이 끊어졌을 때 발생
+- `close`
+    - 클라이언트 소켓 채널의 연결이 닫혔을 때 발생
+- `write`
+    - 소켓 채널에 데이터가 기록되었을 때 발생
+- `flush`
+    - 소켓 채널에 대한 flush 메서드가 호출되었을 때 발생
+    
+
+### 이벤트 이동 경로와 이벤트 메서드 실행
+
+여러 이벤트 핸들러가 등록되었을 때 어떻게 이벤트 메서드가 실행될까?
+
+```java
+@Override
+public void channelRead(ChannelHandlerContext ctx, Object msg){
+    Bytebuf readMessage = (ByteBuf) msg;
+    System.out.println("First channelRead :" + readMessage.toString(Charset.defaultCharset()));
+    ctx.write(msg);
+}
+```
+
+
+```java
+@Override
+public void channelRead(ChannelHandlerContext ctx, Object msg){
+    Bytebuf readMessage = (ByteBuf) msg;
+    System.out.println("Second channelRead :" + readMessage.toString(Charset.defaultCharset()));
+}
+```
+
+위 핸들러를 등록하고 실행하면 생각했던 것과 다르게 FirstHandler의 channelRead메서드만 작동한다. 이벤트에 해당하는 이벤트 메서드가 실행되면서 이벤트가 사라졌기 때문이다.
+이를 우리가 생각했던 것처럼 둘다 작동하려면 아래와 같이 수정해야한다.
+
+```java
+@Override
+public void channelRead(ChannelHandlerContext ctx, Object msg){
+    Bytebuf readMessage = (ByteBuf) msg;
+    System.out.println("First channelRead :" + readMessage.toString(Charset.defaultCharset()));
+    ctx.write(msg);
+    ctx.fireChannelRead(msg);
+}
+```
+
+`ctx.fireChannelRead(msg)`가 다음ㅇ ㅣ벤트 핸들러로 이벤트를 넘겨준다.
+
+### 코덱
+네티에서 코덱은 전송할 데이터를 전송 프로토콜에 맞추어 인코딩 디코딩 해주는 역할을 한다.
+
+## 코덱의 구조
+코덱은 데이터를 전송할 때는 인코더를 이용하여 패킷으로 변환하고 수신할 때는 디코더를 사용하여 패킷을 우리가 원하는 데이터 형태로 변환해야한다.
+
+### 코덱의 실행 과정
+코덱은 템플릿 메서드 패턴으로 구현되어있다. 상위 구현체에서 메서드의 실행순서만을 지정하고 수행될 메서드의 구현은 하위 구현체로 위임한다.
+인코더의 메서드 호출 순서는 아래와 같다.
+
+1. ctx.write()
+2. write이벤트 발생
+3. channelOutBoundHandler write이벤트 발생
+4. encode() 실행
+
+## 기본 제공 코덱
+네티에서는 자주 사용되는 인코더와 디코더를 기본 제공한다. `io.netty.handler.codec`에 기본 제공하는 코덱들이 위치해있다.
+
+- base64 codec
+- bytes codec
+- compression codec
+- http codec
+- marshalling codec
+- protobuf codec
+- rtsp codec
+- sctp codec
+- spdy codec
+- string codec
+- serialization codec
+
+## 사용자 정의 코덱 
+사용자 정의 코덱은 사용자가 직접 필요한 프로토콜을 구현하는 것이다. 필요에따라 인바운드와 아웃바운드 핸들러를 구현한다.
+
+### HttpHelloWorldServer 예제 실습
+HttpServerCodec 클래스는 인바운드 아웃바운드 이벤트 핸들러를 모두 구현한다. 따라사 이벤트 핸들러의 순서가 중요하다.
+만약 예제의 이벤트 핸들러의 순서를 뒤바꾸면 HttpHelloWorldServerHandler가 먼저 이벤트를 받아서 디코딩되지 않은 정보가 들어와서 아무런 작동을 하지 않게된다.
+항상 이벤트 핸들러의 순서에 유의하자.
+
+
+## 마치며
+이벤트 핸들러는 네티 추상화 계층 중 가장 개발자와 밀접한 부분이다. 대부분의 비즈니스 로직이 이벤트 핸들러에 구현되기 때문이다. 그러르호 이벤트 핸들러에서 발생하는 이벤트와 발생 순서를 잘 숙지하자.
